@@ -63,8 +63,7 @@ const EmotionText = styled.Text`
 const emotions = ["🤯", "🥲", "🤬", "🤗", "🥰", "😊", "🤩"];
 
 const Write = ({ navigation: { goBack } }) => {
-  const context = useDB();
-
+  const { realm } = useDB();
   const [selectedEmotion, setEmotion] = useState(null);
   const [feelings, setFeelings] = useState("");
   const onEmotionPress = (face) => setEmotion(face);
@@ -73,14 +72,14 @@ const Write = ({ navigation: { goBack } }) => {
     if (feelings === "" || selectedEmotion == null) {
       return Alert.alert("다시 입력해주세요~");
     }
-    // realm.write(() => {
-    //   const feeling = realm.create("Feeling", {
-    //     _id: Date.now(),
-    //     emotion: selectedEmotion,
-    //     message: feelings,
-    //   });
-    //   console.log(feeling);
-    // });
+    realm.write(() => {
+      const feeling = realm.create("Feeling", {
+        _id: Date.now(),
+        emotion: selectedEmotion,
+        message: feelings,
+      });
+      console.log(feeling);
+    });
     writeFire(selectedEmotion, feelings);
 
     goBack();
