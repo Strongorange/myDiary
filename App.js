@@ -1,8 +1,20 @@
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import Navigator from "./navigator";
 import Realm from "realm";
-import { DBContext } from "./context";
+import firestore from "@react-native-firebase/firestore";
+import Context, { DBContext, useDB } from "./context";
+import styled from "styled-components";
+
+const Loading = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Text = styled.Text`
+  font-size: 36px;
+`;
 
 const FeelingSchema = {
   name: "Feeling",
@@ -17,6 +29,7 @@ const FeelingSchema = {
 export default function App() {
   const [ready, setReady] = useState(false);
   const [realm, setRealm] = useState(null);
+  const [fireFeelings, setFireFeeling] = useState([]);
 
   useEffect(() => {
     async function prepare() {
@@ -27,8 +40,20 @@ export default function App() {
           schema: [FeelingSchema],
         });
         setRealm(connection);
-        // Artificially delay for two seconds to simulate a slow loading
-        // experience. Please remove this if you copy and paste the code!
+
+        // Firebase
+        firestore()
+          .collection("feelings")
+          .doc("chanhwi")
+          .onSnapshot((documentSnapshot) => {
+            try {
+              setFireFeeling(documentSnapshot.data()["data"]);
+            } catch (error) {
+              console.log(error);
+            } finally {
+            }
+          });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (e) {
         console.warn(e);
       } finally {
@@ -36,11 +61,20 @@ export default function App() {
         setReady(true);
       }
     }
+
     prepare();
   }, []);
 
+  if (!ready) {
+    return (
+      <Loading>
+        <Text>로딩중...</Text>
+      </Loading>
+    );
+  }
+
   return (
-    <DBContext.Provider value={realm}>
+    <DBContext.Provider value={{ fireFeelings, realm }}>
       <NavigationContainer>
         <Navigator />
       </NavigationContainer>

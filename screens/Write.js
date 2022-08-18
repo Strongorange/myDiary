@@ -3,6 +3,7 @@ import { Alert } from "react-native";
 import styled from "styled-components/native";
 import { useDB } from "../context";
 import colors from "../colors";
+import firestore from "@react-native-firebase/firestore";
 
 const View = styled.View`
   flex: 1;
@@ -62,7 +63,8 @@ const EmotionText = styled.Text`
 const emotions = ["🤯", "🥲", "🤬", "🤗", "🥰", "😊", "🤩"];
 
 const Write = ({ navigation: { goBack } }) => {
-  const realm = useDB();
+  const context = useDB();
+
   const [selectedEmotion, setEmotion] = useState(null);
   const [feelings, setFeelings] = useState("");
   const onEmotionPress = (face) => setEmotion(face);
@@ -71,16 +73,31 @@ const Write = ({ navigation: { goBack } }) => {
     if (feelings === "" || selectedEmotion == null) {
       return Alert.alert("다시 입력해주세요~");
     }
-    realm.write(() => {
-      const feeling = realm.create("Feeling", {
-        _id: Date.now(),
-        emotion: selectedEmotion,
-        message: feelings,
-      });
-      console.log(feeling);
-    });
+    // realm.write(() => {
+    //   const feeling = realm.create("Feeling", {
+    //     _id: Date.now(),
+    //     emotion: selectedEmotion,
+    //     message: feelings,
+    //   });
+    //   console.log(feeling);
+    // });
+    writeFire(selectedEmotion, feelings);
 
     goBack();
+  };
+
+  const writeFire = (emotion, feeling) => {
+    firestore()
+      .collection("feelings")
+      .doc("chanhwi")
+      .update({
+        data: firestore.FieldValue.arrayUnion({
+          createdAt: Date.now(),
+          emotion,
+          feeling,
+        }),
+      })
+      .then(() => console.log("FB에 메세지 추가됨"));
   };
 
   return (

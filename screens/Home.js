@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components/native";
 import colors from "../colors";
 import { Ionicons } from "@expo/vector-icons";
+import Context, { DBContext, useDB } from "../context";
 
 const View = styled.View`
   flex: 1;
@@ -26,14 +27,25 @@ const Btn = styled.TouchableOpacity`
   background-color: ${colors.btnColor};
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
 `;
-const BtnText = styled.Text`
-  color: white;
-`;
+
+const MessageList = styled.FlatList``;
 
 const Home = ({ navigation: { navigate } }) => {
+  const context = useContext(DBContext);
+
+  const renderItem = ({ item }) => {
+    //
+    return <Title>{item.emotion}</Title>;
+  };
+
   return (
     <View>
       <Title>내 일기</Title>
+      <MessageList
+        data={context.fireFeelings}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.createdAt}
+      />
       <Btn onPress={() => navigate("Write")}>
         <Ionicons name="add" color="white" size={48} />
       </Btn>

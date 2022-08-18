@@ -18,3 +18,12 @@
 
     Write 에서 navigation: {goBack} 을 사용하여 입력 후 뒤로가기 이전 컴포넌트는 언마운트되어 state 초기호되어
     굳이 수동으로 setEmotion, setFeeling 을 null, "" 으로 초기화 해주지 않아도 됨
+
+## Firebase 연동
+
+    npm i firebase 라이브러리는 firestore backend 에 접속할 수 없다는 오류를 잡지 못 함
+    대안으로 react-native-firebase 라이브러리를 사용해 firestore 에 접속
+    collection - document - field 관계를 기억하고
+    입력한 이모지, 텍스트가 Firestore 에 저장되게 함
+    Field 에 Array 를 쓰려면 firestore.FieldValue.arrayUnion({},{},"a", 5, ) 형식으로 사용가능 => [{},{},"a",5] 의 Array 생성
+    update funtion 을 사용시 계속해서 Array 에 data 가 추가됨!
