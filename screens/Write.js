@@ -60,7 +60,7 @@ const EmotionText = styled.Text`
   font-size: 22px;
 `;
 
-const emotions = ["🤯", "🥲", "🤬", "🤗", "🥰", "😊", "🤩"];
+export const emotions = ["🤯", "🥲", "🤬", "🤗", "🥰", "😊", "🤩"];
 
 const Write = ({ navigation: { goBack } }) => {
   const { realm } = useDB();

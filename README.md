@@ -27,3 +27,5 @@
     입력한 이모지, 텍스트가 Firestore 에 저장되게 함
     Field 에 Array 를 쓰려면 firestore.FieldValue.arrayUnion({},{},"a", 5, ) 형식으로 사용가능 => [{},{},"a",5] 의 Array 생성
     update funtion 을 사용시 계속해서 Array 에 data 가 추가됨!
+
+# Drop Down

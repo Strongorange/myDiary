@@ -2,8 +2,15 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components/native";
 import colors from "../colors";
 import { Ionicons } from "@expo/vector-icons";
-import Context, { DBContext, useDB } from "../context";
+import { useDB } from "../context";
+import { emotions } from "./Write";
+import { Dimensions } from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
 
+//  variables
+const SCREEN_WIDTH = Number(Dimensions.get("window").width);
+const SCREEN_HEIGHT = Number(Dimensions.get("window").height);
+// Styled
 const View = styled.View`
   flex: 1;
   padding: 0px 50px;
@@ -31,7 +38,7 @@ const Btn = styled.TouchableOpacity`
 const MessageList = styled.FlatList``;
 
 const Text = styled.Text`
-  font-size: 24px;
+  font-size: 18px;
 `;
 
 const Record = styled.View`
@@ -40,7 +47,21 @@ const Record = styled.View`
   padding: 10px 20px;
   border-radius: 20px;
   align-items: center;
+  position: relative;
 `;
+
+const EmotionRecord = styled(Record)`
+  background-color: ${colors.cardColor};
+  min-width: ${SCREEN_WIDTH / 1.7}px;
+  max-width: ${SCREEN_WIDTH / 1.5}px;
+  position: absolute;
+  justify-content: space-between;
+  z-index: 5;
+`;
+
+const EmotionEditTouch = styled.TouchableOpacity``;
+
+const EmotionSelect = styled.TouchableOpacity``;
 
 const Emotion = styled.Text`
   font-size: 26px;
@@ -75,6 +96,9 @@ const Home = ({ navigation: { navigate } }) => {
   const [editingId, setEditingId] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [editText, setEditText] = useState("");
+  const [nowEditingEmotion, setNowEditingEmotion] = useState(false);
+  const [selectedEmotion, setSelectedEmotion] = useState("");
+
   useEffect(() => {
     const realmFeelings = realm.objects("Feeling");
     setRealmFeelings(realmFeelings);
@@ -94,11 +118,15 @@ const Home = ({ navigation: { navigate } }) => {
     setEditText(text);
   };
 
+  const onPressEditEmotion = () => {
+    setNowEditingEmotion((prev) => !prev);
+  };
+
   const renderItem = ({ item }) => {
     const onPress = () => {
       const id = item._id;
       const target = realm.objects("Feeling").filtered(`_id == '${id}'`);
-
+      console.log(target[0]);
       if (isEdit) {
         try {
           // 수정하고 누를때
@@ -106,12 +134,15 @@ const Home = ({ navigation: { navigate } }) => {
           console.log(`target : ${target[0].message}`);
           realm.write(() => {
             target[0].message = editText;
+            target[0].emotion = selectedEmotion;
           });
+          setSelectedEmotion("");
         } catch (error) {
           console.log(error);
         } finally {
           setIsEdit(false);
           setEditText("");
+          setNowEditingEmotion(false);
           console.log(`updated target : ${JSON.stringify(target)}`);
         }
       } else {
@@ -119,6 +150,7 @@ const Home = ({ navigation: { navigate } }) => {
           // 처음 수정할때
           setEditingId(target[0]._id);
           setEditText(target[0].message);
+          setSelectedEmotion(target[0].emotion);
         } catch (error) {
           console.log(error);
         } finally {
@@ -131,15 +163,42 @@ const Home = ({ navigation: { navigate } }) => {
 
     return (
       <Record>
-        <Emotion>{item.emotion}</Emotion>
         {isEdit && editingId === item._id ? (
-          <MessageEdit
-            placeholder="수정할 내용을 입력해주세요"
-            value={editText}
-            onChangeText={onChangeText}
-          />
+          <>
+            {nowEditingEmotion ? (
+              <EmotionRecord isVisible={nowEditingEmotion}>
+                {emotions.map((emotion, index) => (
+                  <EmotionSelect
+                    key={Math.random()}
+                    onPress={() => {
+                      setSelectedEmotion(emotion);
+                      setNowEditingEmotion(false);
+                    }}
+                  >
+                    <Text>
+                      {selectedEmotion === "" ? emotion : selectedEmotion}
+                    </Text>
+                  </EmotionSelect>
+                ))}
+              </EmotionRecord>
+            ) : null}
+
+            <EmotionEditTouch onPress={onPressEditEmotion}>
+              <Emotion>
+                {selectedEmotion === "" ? item.emotion : selectedEmotion}
+              </Emotion>
+            </EmotionEditTouch>
+            <MessageEdit
+              placeholder="수정할 내용을 입력해주세요"
+              value={editText}
+              onChangeText={onChangeText}
+            />
+          </>
         ) : (
-          <Message>{item.message}</Message>
+          <>
+            <Emotion>{item.emotion}</Emotion>
+            <Message>{item.message}</Message>
+          </>
         )}
 
         <IconBtn onPress={onPress}>
