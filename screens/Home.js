@@ -78,9 +78,13 @@ const MessageEdit = styled.TextInput`
   font-weight: 400;
 `;
 
-const IconBtn = styled.TouchableOpacity`
+const EditBtn = styled.TouchableOpacity`
   position: absolute;
   right: 20px;
+`;
+
+const DeleteBtn = styled(EditBtn)`
+  right: 50px;
 `;
 
 const Icon = styled(Ionicons)``;
@@ -123,10 +127,23 @@ const Home = ({ navigation: { navigate } }) => {
   };
 
   const renderItem = ({ item }) => {
+    const onPressDelete = () => {
+      const id = item._id;
+      const targetForDel = realm.objects("Feeling").filtered(`_id == '${id}'`);
+
+      realm.write(() => {
+        realm.delete(targetForDel);
+        console.log(realm.objects("Feeling"));
+      });
+
+      setIsEdit(false);
+    };
+
     const onPress = () => {
       const id = item._id;
       const target = realm.objects("Feeling").filtered(`_id == '${id}'`);
-      console.log(target[0]);
+      console.log(`onpress = ${JSON.stringify(target[0])}`);
+      setSelectedEmotion(target[0].emotion);
       if (isEdit) {
         try {
           // 수정하고 누를때
@@ -150,7 +167,7 @@ const Home = ({ navigation: { navigate } }) => {
           // 처음 수정할때
           setEditingId(target[0]._id);
           setEditText(target[0].message);
-          setSelectedEmotion(target[0].emotion);
+          setSelectedEmotion(target[0].emotion); //tartget[0] 이 삭제되서?
         } catch (error) {
           console.log(error);
         } finally {
@@ -193,6 +210,9 @@ const Home = ({ navigation: { navigate } }) => {
               value={editText}
               onChangeText={onChangeText}
             />
+            <DeleteBtn onPress={onPressDelete}>
+              <Ionicons name="close-circle" size={18} />
+            </DeleteBtn>
           </>
         ) : (
           <>
@@ -201,12 +221,12 @@ const Home = ({ navigation: { navigate } }) => {
           </>
         )}
 
-        <IconBtn onPress={onPress}>
+        <EditBtn onPress={onPress}>
           <Icon
             name={editingId === item._id ? "md-checkmark-outline" : "pencil"}
             size={18}
           />
-        </IconBtn>
+        </EditBtn>
       </Record>
     );
   };
