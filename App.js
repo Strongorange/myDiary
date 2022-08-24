@@ -22,6 +22,7 @@ const FeelingSchema = {
     _id: "int",
     emotion: "string",
     message: "string",
+    // CreatedAt 추가
   },
   primaryKey: "_id",
 };

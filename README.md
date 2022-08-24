@@ -28,4 +28,18 @@
     Field 에 Array 를 쓰려면 firestore.FieldValue.arrayUnion({},{},"a", 5, ) 형식으로 사용가능 => [{},{},"a",5] 의 Array 생성
     update funtion 을 사용시 계속해서 Array 에 data 가 추가됨!
 
-# Drop Down
+## 5.5 Realm Listener 방법
+
+    혼자서는 일일히 업데이트, 삭제, 추가등이 있을때마다 State 를 수정해줬는데
+    Realm Listener((feelings, changes)) => 의 첫번째 인자에서 바뀐 feelings 얻을 수 있어 여기서 state를 업데이트 해주면 편함
+
+## 5.6 LayoutAnimation / Realm addListener
+
+    addListener 의 (바뀐object, changes) => 바뀐 object 로 업데이트된 오브젝트를 실시간으로 받을 수 있음
+    업데이트 된 object 를 State 에 업데이트 함으로 항상 최신의 자료 저장가능
+
+
+     LayoutAnimation.linear(); //State 에 변화를 주어 레이아웃이 바뀔때 애니메이션을 적용해!
+     장소는 상관이 없다 useEffect 에서 부르면 RN 에게 이렇게 말한다
+     State 가 바뀌어 View 가 변하면 그것에 대해 애니메이션을 추가한다
+     안 쓸 이유가 없다

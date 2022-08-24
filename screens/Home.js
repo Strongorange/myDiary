@@ -4,8 +4,13 @@ import colors from "../colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useDB } from "../context";
 import { emotions } from "./Write";
-import { Dimensions } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
+import { Dimensions, LayoutAnimation, Platform, UIManager } from "react-native";
+
+if (Platform.OS === "android") {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 //  variables
 const SCREEN_WIDTH = Number(Dimensions.get("window").width);
@@ -106,8 +111,10 @@ const Home = ({ navigation: { navigate } }) => {
   useEffect(() => {
     const realmFeelings = realm.objects("Feeling");
     setRealmFeelings(realmFeelings);
-    realmFeelings.addListener(() => {
-      const realmFeelings = realm.objects("Feeling");
+    realmFeelings.addListener((realmFeelings, changes) => {
+      //Stae 에 어떤 변화를 주든 animate 해줘
+      LayoutAnimation.spring(); //State 에 변화를 주어 레이아웃이 바뀔때 애니메이션을 적용해!
+
       setRealmFeelings(realmFeelings);
     });
 
@@ -142,7 +149,6 @@ const Home = ({ navigation: { navigate } }) => {
     const onPress = () => {
       const id = item._id;
       const target = realm.objects("Feeling").filtered(`_id == '${id}'`);
-      console.log(`onpress = ${JSON.stringify(target[0])}`);
       setSelectedEmotion(target[0].emotion);
       if (isEdit) {
         try {
